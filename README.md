@@ -57,10 +57,10 @@ Com os dados processados, inicie a aplicação Web com o comando:
 ---
 
 ## 👥 Equipe Desenvolvedora
-* Ricardo
-* Addriel
-* Gabriel
-* Renato
+* Ricardo Formigoni
+* Addriel Teixeira
+* Gabriel Moreira
+* Renato Oliveira
 
 ---
 
