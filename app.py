@@ -6,30 +6,27 @@ import plotly.express as px
 st.set_page_config(page_title="Dashboard Vacinal ES", layout="wide")
 
 @st.cache_data
-def carregar_dados_prototipo():
-    cidades_es = {
-        'Vitória': [-20.3155, -40.3128],
-        'Vila Velha': [-20.3297, -40.2925],
-        'Serra': [-20.1286, -40.3078],
-        'Cariacica': [-20.2638, -40.4200],
-        'Linhares': [-19.3911, -40.0722],
-        'Colatina': [-19.5314, -40.6316],
-        'Guarapari': [-20.6667, -40.4950],
-        'São Mateus': [-18.7161, -39.8589],
-        'Cachoeiro de Itapemirim': [-20.8489, -41.1128],
-        'Aracruz': [-19.8202, -40.2733]
-    }
-    
-    vacinas = ['BCG', 'Poliomielite', 'Pentavalente']
-    anos = [2021, 2022, 2023]
-    
-    dados = []
-    for ano in anos:
-        for mun, coords in cidades_es.items():
-            for vac in vacinas:
-                cobertura = np.random.uniform(70.0, 99.0)
-                dados.append([ano, 'ES', mun, vac, cobertura, coords[0], coords[1]])
-                
-    return pd.DataFrame(dados, columns=['ano', 'sigla_uf', 'municipio', 'vacina', 'cobertura_vacinal', 'lat', 'lon'])
+def carregar_dados():
+    try:
+        df = pd.read_csv('dados_vacinacao_es.csv', sep=';', decimal=',')
+        
+        df['ano'] = df['ano'].astype(str).str.strip() 
+        df['vacina'] = df['vacina'].astype(str).str.strip().str.upper() 
+        
+        df = df[df['ano'].isin(['2021', '2022'])]
+        df = df[df['vacina'].isin(['BCG', 'POLIOMIELITE'])]
+        
+        df['vacina'] = df['vacina'].replace({'POLIOMIELITE': 'Poliomielite'})
+        
+        return df
+        
+    except FileNotFoundError:
+        st.error("⚠️ Arquivo 'dados_vacinacao_es.csv' não encontrado na pasta.")
+        st.info("Por favor, rode o arquivo 'etl.py' no terminal para gerar a base de dados real antes de iniciar o dashboard.")
+        st.stop() 
 
-df_vacina = carregar_dados_prototipo()
+df_vacina = carregar_dados()
+
+if df_vacina.empty:
+    st.error("⚠️ O arquivo CSV foi lido, mas nenhum dado válido foi encontrado. Verifique se o ETL foi executado.")
+    st.stop()
