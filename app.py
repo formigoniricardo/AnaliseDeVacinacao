@@ -90,3 +90,42 @@ with col_mapa:
 
     fig_mapa.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     st.plotly_chart(fig_mapa, use_container_width=True)
+
+with col_grafico:
+    st.subheader("🚨 Top 20 Maiores Hiatos (Piores Coberturas)")
+    
+    # Filtra as 20 menores taxas e ordena para o gráfico desenhar do menor pro maior
+    df_ranking = df_filtrado.nsmallest(20, "cobertura_vacinal").sort_values(by="cobertura_vacinal", ascending=False)
+    
+    fig_barras = px.bar(
+        df_ranking, 
+        x="cobertura_vacinal", 
+        y="municipio", 
+        orientation='h',
+        color="cobertura_vacinal",
+        color_continuous_scale=px.colors.diverging.RdYlGn,
+        range_color=[60, 100],
+        labels={'cobertura_vacinal': 'Cobertura (%)', 'municipio': ''},
+        text_auto='.1f' 
+    )
+    fig_barras.add_vline(x=95, line_dash="dash", line_color="red", annotation_text="Meta (95%)")
+    
+    fig_barras.update_layout(
+        showlegend=False, 
+        margin={"r":0,"t":0,"l":0,"b":0},
+        height=500, 
+    )
+    st.plotly_chart(fig_barras, use_container_width=True)
+
+st.markdown("---")
+st.subheader("Tabela Completa para Tomada de Decisão")
+
+df_exibicao = df_filtrado[['municipio', 'vacina', 'cobertura_vacinal', 'status']].sort_values(by='cobertura_vacinal')
+df_exibicao = df_exibicao.rename(columns={
+    'municipio': 'Município', 
+    'vacina': 'Imunizante', 
+    'cobertura_vacinal': 'Cobertura Alcançada (%)',
+    'status': 'Situação da Meta'
+})
+
+st.dataframe(df_exibicao, hide_index=True, use_container_width=True)
